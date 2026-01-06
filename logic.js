@@ -14,6 +14,8 @@ let state = {
 const twoDigits = n => String(n).padStart(2, '0');
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
+let get_hour_index;
+
 async function start() {
     clearInterval(interval);
     flowDefaults();
@@ -27,6 +29,7 @@ async function start() {
     // 10 seconds per 1 hour
     let day = 1;
     let hour = 0;
+    get_hour_index = () => hourIndex(day, hour);
 
     let perDayTimer = 24;
     let decisionTimer = 100;
@@ -89,7 +92,7 @@ function hourStarted(day, hour) {
     updatePowerChart(index);
     updateCostChart(index);
     actualGraphEntriesBefore(day, hour);
-    moveTemporaryToNewHour();
+    clearAndWriteRatios(hourIndex(day, hour), battery_ratio_val, solar_ratio_val);
 }
 
 // hour 0-23
@@ -170,11 +173,38 @@ function hourFinished(day, hour) {
     actual.battery_output.push(-1 * Math.min(battery_usage, 0))
 
     actualGraphEntriesAfter(day, hour)
-    updateTotal();
+    updateTotal(day, hour);
+    saveToStorage(day, hour)
 }
 
-function moveTemporaryToNewHour() {
-    // todo:
+let save_game_key = (new Date()).getTime()
+let memory = []
+function saveToStorage(day, hour) {
+    memory.push({day, hour, battery_ratio_val, solar_ratio_val})
+    localStorage.setItem(`save_${save_game_key}`, JSON.stringify(memory))
+}
+
+function clearAndWriteRatios(hourIndex, battery, solar) {
+    console.log(hourIndex)
+
+    const temps = [
+        ["Aku ratio", battery],
+        ["Solar ratio", solar],
+    ]
+
+    for (const t of temps) {
+        const l = t[0]
+        const value = t[1]
+        let empty = Array.from({ length: hourIndex }, (_, i) => 0);
+        empty.push(value);
+        console.log("empty", empty)
+
+        powerChart.data.datasets.find(
+            d => d.label === l
+        ).data = empty
+    }
+
+    powerChart.update();
 }
 
 function updateTotal() {
@@ -264,16 +294,13 @@ function solarRatio() {
 function solar_slider_change(val) {
     solar_ratio_val = Number(val);
     console.log("solar_ratio_val", solar_ratio_val)
-    // if (val == 0) return solar.still();
-    // if (val > 0) return solar.producing();
+    if (get_hour_index) clearAndWriteRatios(get_hour_index(), battery_ratio_val, solar_ratio_val)
 }
 
 function battery_slider_change(val) {
     battery_ratio_val = Number(val);
     console.log("battery_ratio_val", battery_ratio_val)
-    // if (val == 0) return battery.still();
-    // if (val < 0) return battery.storing();
-    // if (val > 0) return battery.providing();
+    if (get_hour_index) clearAndWriteRatios(get_hour_index(), battery_ratio_val, solar_ratio_val)
 }
 
 const solar_slider = document.getElementById("solar_ratio");
