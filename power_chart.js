@@ -3,9 +3,8 @@ let viewEnd = 23;
 
 const days = 7;
 
-function generateDayAnnotations(totalHours) {
+function generateDayAnnotations(days) {
     const annotations = {};
-    const days = Math.ceil(totalHours / 24);
 
     for (let i = 0; i < days; i++) {
         const start = i * 24;
@@ -14,7 +13,7 @@ function generateDayAnnotations(totalHours) {
 
         annotations[`dayBlock${i}`] = {
             type: 'box',
-            xMin: start - 0.5, // Offset by 0.5 to center the boundary between bars
+            xMin: start - 0.5,
             xMax: end - 0.5,
             backgroundColor: isEven ? 'rgba(200, 200, 200, 0.2)' : 'transparent',
             borderWidth: 0,
@@ -38,7 +37,8 @@ function generateDayAnnotations(totalHours) {
     return annotations;
 }
 
-const dayAnnotations = generateDayAnnotations(days * 24);
+const dayAnnotations = generateDayAnnotations(days);
+// console.log("dayAnnotations", dayAnnotations)
 
 const labels = Array.from({ length: days * 24 }, (_, i) => {
     // const day = Math.floor(i / 24) + 1;
@@ -125,7 +125,7 @@ const powerChart = new Chart(document.getElementById("powerChart"), {
                         xMin: 0,
                         xMax: 0,
                         borderColor: 'red',
-                        borderWidth: 3,
+                        borderWidth: 2,
                         label: {
                             display: false,
                             content: 'NÜÜD',
@@ -153,25 +153,25 @@ const powerChart = new Chart(document.getElementById("powerChart"), {
     }
 });
 
-function updatePowerChart(currentHour) {
+function updatePowerChart(hourIndex) {
     // Move the "Now" Line (Always moves) ---
-    powerChart.options.plugins.annotation.annotations.nowLine.xMin = currentHour;
-    powerChart.options.plugins.annotation.annotations.nowLine.xMax = currentHour;
+    powerChart.options.plugins.annotation.annotations.nowLine.xMin = hourIndex;
+    powerChart.options.plugins.annotation.annotations.nowLine.xMax = hourIndex;
 
     // The "Middle" Logic ---
     const halfWindow = 12; // The middle of a 24-hour view
 
-    if (currentHour <= halfWindow) {
+    console.log("hourIndex", hourIndex)
+    if (hourIndex <= halfWindow) {
         // 1. Keep the window fixed at 0-23 while the line moves to the middle
         powerChart.options.scales.x.min = 0;
         powerChart.options.scales.x.max = 23;
     } else {
         // 2. Once past the middle, slide the window to keep the line centered
         // Subtract 12 from current to find the new start of the window
-        powerChart.options.scales.x.min = currentHour - halfWindow;
-        powerChart.options.scales.x.max = currentHour + (23 - halfWindow);
+        powerChart.options.scales.x.min = hourIndex - halfWindow;
+        powerChart.options.scales.x.max = hourIndex + (23 - halfWindow);
     }
 
     powerChart.update('active');
-    currentHour++;
 }

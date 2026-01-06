@@ -83,6 +83,5 @@ function updateCostChart(currentHour) {
     }
 
     priceChart.update('active');
-    currentHour++;
 }
 

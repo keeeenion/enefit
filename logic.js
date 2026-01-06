@@ -40,16 +40,15 @@ async function start() {
 
         hour = 24 - perDayTimer;
 
+        // whole day finished
+        if (perDayTimer <= 0) {
+            perDayTimer = 24;
+            day++;
+        }
+
         if (decisionTimer === 100) {
             hour = hour === 24 ? 0 : hour
             hourStarted(day, hour)
-        }
-
-        // whole day finished
-        if (perDayTimer <= 0) {
-            dayFinished(day);
-            perDayTimer = 24;
-            day++;
         }
 
         // game over
@@ -70,7 +69,7 @@ async function start() {
     }
 
     tick();
-    setInterval(tick, 500) // develop only
+    ticker = setInterval(tick, 50) // develop only
     // ticker = setInterval(tick, 1000) // 10 seconds per hour
 }
 
@@ -78,19 +77,17 @@ function gameOver() {
     // todo: nothing really
 }
 
-function dayFinished(day) {
-    // todo: nothing really
-}
-
 function hourIndex(day, hour) {
-    return day * hour
+    console.log(day, hour)
+    return (day - 1) * 24 + hour;
 }
 
 // hour 0-23
 function hourStarted(day, hour) {
-    console.log("hour started", hour)
-    updatePowerChart(hourIndex(day, hour));
-    updateCostChart(hourIndex(day, hour));
+    console.log("hour started", day, hour)
+    const index = hourIndex(day, hour);
+    updatePowerChart(index);
+    updateCostChart(index);
     actualGraphEntriesBefore(day, hour);
 }
 
@@ -191,7 +188,7 @@ function actualGraphEntriesBefore(day, hour) {
     for (const e of entries) {
         powerChart.data.datasets.find(
             d => d.label === e[0]
-        ).data[hour] = actual[e[1]][hour];
+        ).data[hourIndex(day, hour)] = actual[e[1]][hour];
     }
 
     powerChart.update();
@@ -208,7 +205,7 @@ function actualGraphEntriesAfter(day, hour) {
     for (const e of entries) {
         powerChart.data.datasets.find(
             d => d.label === e[0]
-        ).data[hour] = actual[e[1]][hour];
+        ).data[hourIndex(day, hour)] = actual[e[1]][hour];
     }
 
     powerChart.update();
