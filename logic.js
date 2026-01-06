@@ -74,6 +74,7 @@ async function start() {
     tick();
     // ticker = setInterval(tick, 200) // develop only
     ticker = setInterval(tick, 500) // 5 seconds per hour
+    // muuda mind Raid
 }
 
 function gameOver() {
@@ -85,6 +86,12 @@ function hourIndex(day, hour) {
     return (day - 1) * 24 + hour;
 }
 
+function indexToDayHour(index) {
+    const day = Math.floor(index / 24) + 1;
+    const hour = index % 24;
+    return { day, hour };
+}
+
 // hour 0-23
 function hourStarted(day, hour) {
     console.log("hour started", day, hour)
@@ -92,6 +99,7 @@ function hourStarted(day, hour) {
     updatePowerChart(index);
     updateCostChart(index);
     actualGraphEntriesBefore(day, hour);
+    solarGraphs(index);
     clearAndWriteRatios(hourIndex(day, hour));
 }
 
@@ -115,6 +123,17 @@ function gappedBattery() {
     return battery_usage;
 }
 
+function gappedSolar(day, hour) {
+    const daily = daily_data[day]
+    const actual = daily.actual;
+    const potential_solar = actual.solar[hour]; // positive number
+    const solar_ratio = solarRatio(); // 0..10
+    const solar_power = Math.min(potential_solar, solar_ratio);
+    const solar_left_unused = potential_solar - solar_power;
+    console.log(solar_left_unused, solar_power)
+    return { solar_left_unused, solar_power }
+}
+
 // hour 0-23
 function hourFinished(day, hour) {
     console.log("hour finished", hour)
@@ -123,20 +142,17 @@ function hourFinished(day, hour) {
     const powerCost = daily.costs;
     const actual = daily.actual;
 
-    const load = Math.abs(actual.load[hour]); // converted to positive
-    const potential_solar = actual.solar[hour]; // positive number
-
-    const solar_ratio = solarRatio(); // 0..10
-
-    // console.log("battery_ratio", battery_ratio)
-    // console.log("solar_ratio", solar_ratio)
-
+    const load = Math.abs(actual.load[hour]);
     let battery_usage = gappedBattery();
 
     // console.log("battery_usage", battery_usage)
 
     const battery_power = -1 * battery_usage;
-    const solar_power = Math.min(potential_solar, solar_ratio);
+
+    const { solar_left_unused, solar_power } = gappedSolar(day, hour);
+    powerChart.data.datasets.find(
+        d => d.label === "Solar ratio"
+    ).data[hourIndex(day, hour)] = solar_left_unused;
 
     // console.log("solar_power", solar_power)
     // console.log("battery_power", battery_power)
@@ -177,6 +193,7 @@ function hourFinished(day, hour) {
 
     actual.battery_input.push(-1 * Math.max(battery_usage, 0))
     actual.battery_output.push(-1 * Math.min(battery_usage, 0))
+    // actual.battery_output.push(-1 * Math.min(battery_usage, 0))
 
     actualGraphEntriesAfter(day, hour)
     updateTotal(day, hour);
@@ -186,26 +203,29 @@ function hourFinished(day, hour) {
 let save_game_key = (new Date()).getTime()
 let memory = []
 function saveToStorage(day, hour) {
-    memory.push({day, hour, battery_ratio_val, solar_ratio_val})
+    memory.push({ day, hour, battery_ratio_val, solar_ratio_val })
     localStorage.setItem(`save_${save_game_key}`, JSON.stringify(memory))
 }
 
 function clearAndWriteRatios(hourIndex) {
-    // const temps = [
-    //     ["Aku ratio", -battery],
-    //     ["Solar ratio", solar],
-    // ]
-
     {
         const l = "Aku ratio"
         let battery_usage = -gappedBattery();
-        console.log("battery_usage", battery_usage)
 
         let empty = Array.from({ length: hourIndex }, () => 0);
         empty.push(battery_usage);
         powerChart.data.datasets.find(
             d => d.label === l
         ).data = empty
+    }
+
+    {
+        const l = "Solar ratio"
+        const { day, hour } = indexToDayHour(hourIndex)
+        const { solar_left_unused, solar_power } = gappedSolar(day, hour);
+        solarGraphs(hourIndex, solar_left_unused, solar_power);
+        // set actual solar used
+        // set solar ratio
     }
 
     powerChart.update();
@@ -218,7 +238,7 @@ function updateTotal() {
 
 function actualGraphEntriesBefore(day, hour) {
     const entries = [
-        ["Päike tegelik", "solar"],
+        // ["Päike tegelik", "solar"],
         ["Tarbimise tegelik", "load"],
     ]
 
@@ -231,6 +251,17 @@ function actualGraphEntriesBefore(day, hour) {
     }
 
     powerChart.update();
+}
+
+function solarGraphs(hourIndex, unused, used) {
+    powerChart.data.datasets.find(
+        d => d.label === "Päike tegelik"
+    ).data[hourIndex] = used;
+    powerChart.data.datasets.find(
+        d => d.label === "Solar ratio"
+    ).data[hourIndex] = unused;
+
+    powerChart.update()
 }
 
 function actualGraphEntriesAfter(day, hour) {

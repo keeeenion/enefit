@@ -35,7 +35,7 @@ const priceChart = new Chart(document.getElementById("priceChart"), {
                         xMin: 0,
                         xMax: 0,
                         borderColor: 'red',
-                        borderWidth: 3,
+                        borderWidth: 2,
                         label: {
                             display: false,
                             content: 'NÜÜD',
