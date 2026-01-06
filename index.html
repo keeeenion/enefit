@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Energiasüsteemi ülevaade</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1"></script>
     <style>
         html,
         body {
@@ -330,6 +331,9 @@
                 </div>
                 <button id="connect">Serial connect</button>
                 <button id="start">Start</button>
+
+                <input id="solar_ratio" type="range" min="0" max="10" step="1" />
+                <input id="battery_ratio" type="range" min="0" max="10" step="1" />
             </div>
         </div>
 
@@ -348,8 +352,10 @@
         </div>
     </div>
 
+    <script src="data.js"></script>
     <script src="serial.js"></script>
     <script src="home_graph.js"></script>
+    <script src="power_chart.js"></script>
     <script src="usage_graphs.js"></script>
     <script src="timer.js"></script>
     <script src="logic.js"></script>

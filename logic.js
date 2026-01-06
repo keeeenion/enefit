@@ -1,20 +1,5 @@
 let interval;
 
-const prediction = {
-    load: [-0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -3, -3, -2, -2, -2, -2, -2, -1, -1, -1, -4, -5, -5, -5, -5, -4, -1],
-    solar: [0, 0, 0, 0, 0, 0, 1, 3, 5, 6, 7, 8, 8, 8, 7, 7, 6, 5, 4, 1, 0, 0, 0, 0],
-}
-const actual = {
-    load: [-1, -0.5, -0.5, -0.5, -0.5, -0.5, -0.5, -2, -3, -2, -1, -1, -2, -2, -2, -1, -1, -4, -4, -6, -9, -4, -2, -2],
-    solar: [0, 0, 0, 0, 0, 0, 1, 3, 5, 6, 7, 8, 8, 8, 7, 7, 6, 5, 4, 1, 0, 0, 0, 0],
-    battery_input: [],
-    battery_output: [],
-}
-const powerCost = {
-    energy_cost: [0.1836, 0.2113, 0.1803, 0.1586, 0.1317, 0.1771, 0.2476, 0.3448, 0.3942, 0.4184, 0.3776, 0.3599, 0.3233, 0.3120, 0.2972, 0.2680, 0.2678, 0.2996, 0.3647, 0.4554, 0.4737, 0.4257, 0.3791, 0.2431],
-    grid_cost: [0.2136, 0.2413, 0.2103, 0.1886, 0.1617, 0.2071, 0.27760, 0.3948, 0.4442, 0.4684, 0.4276, 0.4099, 0.3733, 0.3620, 0.3472, 0.3180, 0.3178, 0.3496, 0.4147, 0.5054, 0.5237, 0.4757, 0.4091, 0.2731],
-}
-
 const maxBatteryCapacity = 15;
 
 let state = {
@@ -32,10 +17,10 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 async function start() {
     clearInterval(interval);
     flowDefaults();
-    wholeDayPredictions();
+    allPrediction();
     updateTotal();
 
-    await sleep(5000);
+    // await sleep(5000);
 
     let ticker;
 
@@ -74,34 +59,48 @@ async function start() {
             return;
         }
 
+        console.log("decisionTimer", decisionTimer)
         // update decision timer
-        _updatePieTimer(decisionTimer);
+        if (decisionTimer === 100) {
+            _updatePieTimerInstant(decisionTimer)
+        } else {
+            _updatePieTimer(decisionTimer);
+        }
         _updatePieText(day, `${twoDigits(hour)}:00`);
         decisionTimer -= 10;
     }
 
     tick();
-    // setInterval(tick, 500) // develop only
-    ticker = setInterval(tick, 1000) // 10 seconds per hour
+    setInterval(tick, 500) // develop only
+    // ticker = setInterval(tick, 1000) // 10 seconds per hour
 }
 
 function gameOver() {
-
+    // todo: nothing really
 }
 
 function dayFinished(day) {
-    clearGraphEntries();
+    // todo: nothing really
+}
+
+function hourIndex(day, hour) {
+    return day * hour
 }
 
 // hour 0-23
 function hourStarted(day, hour) {
     console.log("hour started", hour)
+    updateChart(hourIndex(day, hour));
     actualGraphEntriesBefore(day, hour);
 }
 
 // hour 0-23
 function hourFinished(day, hour) {
     console.log("hour finished", hour)
+
+    const daily = daily_data[day]
+    const powerCost = daily.costs;
+    const actual = daily.actual;
 
     const load = Math.abs(actual.load[hour]); // converted to positive
     const potential_solar = actual.solar[hour]; // positive number
@@ -181,28 +180,13 @@ function updateTotal() {
     el.innerHTML = `${state.power_bill.toFixed(2)} €`
 }
 
-function clearGraphEntries() {
-    const cleared = [
-        "Aku tühjaks laadimine (kW)",
-        "Aku laadimine (kW)",
-        "Päike tegelik",
-        "Tarbimise tegelik",
-    ]
-
-    for (const i in powerChart.data.datasets) {
-        if (cleared.includes(powerChart.data.datasets[i].label)) {
-            powerChart.data.datasets[i].data = []
-        }
-    }
-
-    powerChart.update();
-}
-
 function actualGraphEntriesBefore(day, hour) {
     const entries = [
         ["Päike tegelik", "solar"],
         ["Tarbimise tegelik", "load"],
     ]
+
+    const actual = daily_data[day].actual
 
     for (const e of entries) {
         powerChart.data.datasets.find(
@@ -228,25 +212,28 @@ function actualGraphEntriesAfter(day, hour) {
     powerChart.update();
 }
 
-function wholeDayPredictions() {
+function allPrediction() {
+    const loads = Object.values(daily_data).map(d => d.prediction.load).flat()
+    const solars = Object.values(daily_data).map(d => d.prediction.solar).flat()
+
     powerChart.data.datasets.find(
         d => d.label === "Päikese prognoos (kW)"
-    ).data = prediction.solar;
+    ).data = solars;
     powerChart.data.datasets.find(
         d => d.label === "Tarbimise prognoos (kW)"
-    ).data = prediction.load;
+    ).data = loads;
     powerChart.update();
 
     const with_grid_cost = (costs) => costs.map(
-        (value, index) => value + powerCost.grid_cost[index]
+        (value, index) => value + daily_data[1].costs.grid_cost[index]
     );
 
     priceChart.data.datasets.find(
         d => d.label === "Müügi hind (€)"
-    ).data = with_grid_cost(powerCost.energy_cost);
+    ).data = with_grid_cost(daily_data[1].costs.energy_cost);
     priceChart.data.datasets.find(
         d => d.label === "Ostu hind (€)"
-    ).data = powerCost.energy_cost;
+    ).data = daily_data[1].costs.energy_cost
     priceChart.update();
 }
 
@@ -266,23 +253,25 @@ function solarRatio() {
 }
 
 function solar_slider_change(val) {
-    solar_ratio_val = val;
-    if (val == 0) return solar.still();
-    if (val > 0) return solar.producing();
+    solar_ratio_val = Number(val);
+    console.log("solar_ratio_val", solar_ratio_val)
+    // if (val == 0) return solar.still();
+    // if (val > 0) return solar.producing();
 }
 
 function battery_slider_change(val) {
-    battery_ratio_val = val;
-    if (val == 0) return battery.still();
-    if (val < 0) return battery.storing();
-    if (val > 0) return battery.providing();
+    battery_ratio_val = Number(val);
+    console.log("battery_ratio_val", battery_ratio_val)
+    // if (val == 0) return battery.still();
+    // if (val < 0) return battery.storing();
+    // if (val > 0) return battery.providing();
 }
 
-// const solar_slider = document.getElementById("solar_ratio");
-// solar_slider.addEventListener("input", (e) => solar_slider_change(e.target.value))
+const solar_slider = document.getElementById("solar_ratio");
+solar_slider.addEventListener("input", (e) => solar_slider_change(e.target.value))
 
-// const battery_slider = document.getElementById("battery_ratio");
-// battery_slider.addEventListener("input", (e) => battery_slider_change(e.target.value))
+const battery_slider = document.getElementById("battery_ratio");
+battery_slider.addEventListener("input", (e) => battery_slider_change(e.target.value))
 
 const start_btn = document.getElementById("start");
 start_btn.addEventListener("click", (e) => {
