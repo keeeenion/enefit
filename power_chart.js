@@ -132,7 +132,7 @@ const powerChart = new Chart(document.getElementById("powerChart"), {
             {
                 label: "Aku ratio",
                 data: [],
-                stack: "hour",
+                stack: "temp",
                 order: 10,
                 backgroundColor: createStripped("rgba(0,200,140,0.7)"),
                 borderColor: "rgba(0,200,140,0.7)",
@@ -143,7 +143,7 @@ const powerChart = new Chart(document.getElementById("powerChart"), {
             {
                 label: "Solar ratio",
                 data: [],
-                stack: "hour",
+                stack: "temp",
                 order: 11,
                 backgroundColor: createStripped("rgba(217, 255, 0, 0.7)"),
                 borderColor: "rgba(217, 255, 0, 0.7)",
