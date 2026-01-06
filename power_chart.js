@@ -46,6 +46,22 @@ const labels = Array.from({ length: days * 24 }, (_, i) => {
     return `${hr}:00`;
 });
 
+function createStripped(color) {
+    const shapeCanvas = document.createElement('canvas');
+    const shapeCtx = shapeCanvas.getContext('2d');
+    shapeCanvas.width = 10;
+    shapeCanvas.height = 10;
+
+    shapeCtx.strokeStyle = color;
+    shapeCtx.lineWidth = 2;
+    shapeCtx.beginPath();
+    shapeCtx.moveTo(0, 10);
+    shapeCtx.lineTo(10, 0);
+    shapeCtx.stroke();
+
+    return shapeCtx.createPattern(shapeCanvas, 'repeat');
+}
+
 const powerChart = new Chart(document.getElementById("powerChart"), {
     type: "bar",
     categoryPercentage: 1.0,
@@ -111,12 +127,44 @@ const powerChart = new Chart(document.getElementById("powerChart"), {
                 barPercentage: 0.7,
                 categoryPercentage: 1.0,
             },
+
+            // temporary
+            {
+                label: "Aku ratio",
+                data: [],
+                stack: "hour",
+                order: 10,
+                backgroundColor: createStripped("rgba(0,200,140,0.7)"),
+                borderColor: "rgba(0,200,140,0.7)",
+                borderWidth: 1,
+                barPercentage: 0.7,
+                categoryPercentage: 1.0,
+            },
+            {
+                label: "Solar ratio",
+                data: [],
+                stack: "hour",
+                order: 11,
+                backgroundColor: createStripped("rgba(217, 255, 0, 0.7)"),
+                borderColor: "rgba(217, 255, 0, 0.7)",
+                borderWidth: 1,
+                barPercentage: 0.7,
+                categoryPercentage: 1.0,
+            },
         ]
     },
     options: {
         responsive: true,
         plugins: {
-            legend: { position: "bottom" },
+            legend: {
+                position: "bottom",
+                labels: {
+                    filter: function(item) {
+                        const hiddenLabels = ["Aku ratio", "Solar ratio"];
+                        return !hiddenLabels.includes(item.text);
+                    }
+                }
+            },
             annotation: {
                 annotations: {
                     ...dayAnnotations,

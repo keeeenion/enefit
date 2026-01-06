@@ -69,7 +69,7 @@ async function start() {
     }
 
     tick();
-    // ticker = setInterval(tick, 50) // develop only
+    // ticker = setInterval(tick, 200) // develop only
     ticker = setInterval(tick, 500) // 5 seconds per hour
 }
 
@@ -89,6 +89,7 @@ function hourStarted(day, hour) {
     updatePowerChart(index);
     updateCostChart(index);
     actualGraphEntriesBefore(day, hour);
+    moveTemporaryToNewHour();
 }
 
 // hour 0-23
@@ -170,6 +171,10 @@ function hourFinished(day, hour) {
 
     actualGraphEntriesAfter(day, hour)
     updateTotal();
+}
+
+function moveTemporaryToNewHour() {
+    // todo:
 }
 
 function updateTotal() {
