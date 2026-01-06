@@ -69,8 +69,8 @@ async function start() {
     }
 
     tick();
-    ticker = setInterval(tick, 50) // develop only
-    // ticker = setInterval(tick, 1000) // 10 seconds per hour
+    // ticker = setInterval(tick, 50) // develop only
+    ticker = setInterval(tick, 1000) // 10 seconds per hour
 }
 
 function gameOver() {
