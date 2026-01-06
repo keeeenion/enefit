@@ -110,7 +110,7 @@
             stroke-width: 4;
             stroke-linecap: round;
             stroke-dasharray: 0, 100;
-            /* JS will animate this */
+            /* animated in js */
             transition: stroke-dasharray 0.3s linear;
         }
 
@@ -127,12 +127,12 @@
         }
 
         .flow-forward {
-            stroke-dasharray: 20 40;
+            stroke-dasharray: 20 10;
             animation: flowForward 1.6s linear infinite;
         }
 
         .flow-still {
-            stroke-dasharray: 20 40;
+            stroke-dasharray: 20 10;
         }
 
         @keyframes flowForward {
@@ -141,7 +141,7 @@
         }
 
         .flow-reverse {
-            stroke-dasharray: 20 40;
+            stroke-dasharray: 20 10;
             animation: flowReverse 1.6s linear infinite;
         }
 
@@ -196,16 +196,16 @@
                         <rect x="329" y="185.105" width="55" height="4.01356" fill="#F6F7FA" />
                         <path id="flow-home"
                             d="M353.956 434.464V419.546C353.956 408.5 362.91 399.546 373.956 399.546H527.588C538.634 399.546 547.588 390.592 547.588 379.546V355.75"
-                            stroke="#24A37D" stroke-width="2.5" stroke-linejoin="round" />
+                            stroke="#24A37D" stroke-width="10" stroke-linejoin="round" />
                         <path id="flow-battery"
                             d="M756.044 434.464V419.546C756.044 408.5 747.09 399.546 736.044 399.546H582.412C571.366 399.546 562.412 390.592 562.412 379.546V355.75"
-                            stroke="#9E98E2" stroke-width="2.5" />
+                            stroke="#9E98E2" stroke-width="10" />
                         <path id="flow-grid"
                             d="M358 117.536V191.569C358 202.615 366.954 211.569 378 211.569H529C540.046 211.569 549 220.523 549 231.569V342.286"
-                            stroke="#56A3F0" stroke-width="2.5" stroke-linejoin="round" />
+                            stroke="#56A3F0" stroke-width="10" stroke-linejoin="round" />
                         <path id="flow-solar"
                             d="M753 117.536V191.192C753 202.238 744.046 211.192 733 211.192H582C570.954 211.192 562 220.146 562 231.192V342.286"
-                            stroke="#DB835E" stroke-width="2.5" />
+                            stroke="#DB835E" stroke-width="10" />
                         <mask id="path-28-inside-1_1_1946" fill="white">
                             <path
                                 d="M303 52C303 47.5817 306.582 44 311 44H535C539.418 44 543 47.5817 543 52V116C543 120.418 539.418 124 535 124H311C306.582 124 303 120.418 303 116V52Z" />
@@ -356,7 +356,7 @@
     <script src="serial.js"></script>
     <script src="home_graph.js"></script>
     <script src="power_chart.js"></script>
-    <script src="usage_graphs.js"></script>
+    <script src="cost_chart.js"></script>
     <script src="timer.js"></script>
     <script src="logic.js"></script>
 </body>

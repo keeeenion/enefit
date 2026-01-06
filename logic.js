@@ -17,7 +17,7 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 async function start() {
     clearInterval(interval);
     flowDefaults();
-    allPrediction();
+    allPredictions();
     updateTotal();
 
     // await sleep(5000);
@@ -59,7 +59,6 @@ async function start() {
             return;
         }
 
-        console.log("decisionTimer", decisionTimer)
         // update decision timer
         if (decisionTimer === 100) {
             _updatePieTimerInstant(decisionTimer)
@@ -90,7 +89,8 @@ function hourIndex(day, hour) {
 // hour 0-23
 function hourStarted(day, hour) {
     console.log("hour started", hour)
-    updateChart(hourIndex(day, hour));
+    updatePowerChart(hourIndex(day, hour));
+    updateCostChart(hourIndex(day, hour));
     actualGraphEntriesBefore(day, hour);
 }
 
@@ -214,7 +214,8 @@ function actualGraphEntriesAfter(day, hour) {
     powerChart.update();
 }
 
-function allPrediction() {
+function allPredictions() {
+    // power charts
     const loads = Object.values(daily_data).map(d => d.prediction.load).flat()
     const solars = Object.values(daily_data).map(d => d.prediction.solar).flat()
 
@@ -226,16 +227,20 @@ function allPrediction() {
     ).data = loads;
     powerChart.update();
 
+    // cost charts
+    const energy_costs = Object.values(daily_data).map(d => d.costs.energy_cost).flat()
+    const grid_costs = Object.values(daily_data).map(d => d.costs.grid_cost).flat()
+
     const with_grid_cost = (costs) => costs.map(
-        (value, index) => value + daily_data[1].costs.grid_cost[index]
+        (value, index) => value + grid_costs[index]
     );
 
     priceChart.data.datasets.find(
         d => d.label === "Müügi hind (€)"
-    ).data = with_grid_cost(daily_data[1].costs.energy_cost);
+    ).data = with_grid_cost(energy_costs);
     priceChart.data.datasets.find(
         d => d.label === "Ostu hind (€)"
-    ).data = daily_data[1].costs.energy_cost
+    ).data = energy_costs;
     priceChart.update();
 }
 

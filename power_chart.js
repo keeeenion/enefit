@@ -147,18 +147,7 @@ const powerChart = new Chart(document.getElementById("powerChart"), {
     }
 });
 
-const power_state = {
-    current_hour: 0,
-    total_hours: 0,
-}
-
-function initPowerChart(days) {
-    const hours = days
-    power_state.current_hour = 0;
-    power_state.total_hours = hours;
-}
-
-function updateChart(currentHour) {
+function updatePowerChart(currentHour) {
     // Move the "Now" Line (Always moves) ---
     powerChart.options.plugins.annotation.annotations.nowLine.xMin = currentHour;
     powerChart.options.plugins.annotation.annotations.nowLine.xMax = currentHour;
@@ -178,6 +167,5 @@ function updateChart(currentHour) {
     }
 
     powerChart.update('active');
-
     currentHour++;
 }
