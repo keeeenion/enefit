@@ -161,7 +161,7 @@ function updatePowerChart(hourIndex) {
     // The "Middle" Logic ---
     const halfWindow = 12; // The middle of a 24-hour view
 
-    console.log("hourIndex", hourIndex)
+    // console.log("hourIndex", hourIndex)
     if (hourIndex <= halfWindow) {
         // 1. Keep the window fixed at 0-23 while the line moves to the middle
         powerChart.options.scales.x.min = 0;

@@ -78,7 +78,7 @@ function gameOver() {
 }
 
 function hourIndex(day, hour) {
-    console.log(day, hour)
+    // console.log(day, hour)
     return (day - 1) * 24 + hour;
 }
 
