@@ -92,26 +92,11 @@ function hourStarted(day, hour) {
     updatePowerChart(index);
     updateCostChart(index);
     actualGraphEntriesBefore(day, hour);
-    clearAndWriteRatios(hourIndex(day, hour), battery_ratio_val, solar_ratio_val);
+    clearAndWriteRatios(hourIndex(day, hour));
 }
 
-// hour 0-23
-function hourFinished(day, hour) {
-    console.log("hour finished", hour)
-
-    const daily = daily_data[day]
-    const powerCost = daily.costs;
-    const actual = daily.actual;
-
-    const load = Math.abs(actual.load[hour]); // converted to positive
-    const potential_solar = actual.solar[hour]; // positive number
-
-    const battery_ratio = batteryRatio(); // 0..10
-    const solar_ratio = solarRatio(); // 0..10
-
-    // console.log("battery_ratio", battery_ratio)
-    // console.log("solar_ratio", solar_ratio)
-
+function gappedBattery() {
+    const battery_ratio = batteryRatio(); // -5..5
     let battery_usage = 0;
     // can use only as much as there is left in battery
     if (battery_ratio < 0) {
@@ -126,6 +111,27 @@ function hourFinished(day, hour) {
         // ratio 15-12=3, 5 => 3
         battery_usage = Math.min(maxBatteryCapacity - state.battery, battery_ratio)
     }
+
+    return battery_usage;
+}
+
+// hour 0-23
+function hourFinished(day, hour) {
+    console.log("hour finished", hour)
+
+    const daily = daily_data[day]
+    const powerCost = daily.costs;
+    const actual = daily.actual;
+
+    const load = Math.abs(actual.load[hour]); // converted to positive
+    const potential_solar = actual.solar[hour]; // positive number
+
+    const solar_ratio = solarRatio(); // 0..10
+
+    // console.log("battery_ratio", battery_ratio)
+    // console.log("solar_ratio", solar_ratio)
+
+    let battery_usage = gappedBattery();
 
     // console.log("battery_usage", battery_usage)
 
@@ -184,19 +190,19 @@ function saveToStorage(day, hour) {
     localStorage.setItem(`save_${save_game_key}`, JSON.stringify(memory))
 }
 
-function clearAndWriteRatios(hourIndex, battery, solar) {
-    const temps = [
-        ["Aku ratio", -battery],
-        ["Solar ratio", solar],
-    ]
+function clearAndWriteRatios(hourIndex) {
+    // const temps = [
+    //     ["Aku ratio", -battery],
+    //     ["Solar ratio", solar],
+    // ]
 
-    for (const t of temps) {
-        const l = t[0]
-        const value = t[1]
-        let empty = Array.from({ length: hourIndex }, (_, i) => 0);
-        empty.push(value);
-        console.log("empty", empty)
+    {
+        const l = "Aku ratio"
+        let battery_usage = -gappedBattery();
+        console.log("battery_usage", battery_usage)
 
+        let empty = Array.from({ length: hourIndex }, () => 0);
+        empty.push(battery_usage);
         powerChart.data.datasets.find(
             d => d.label === l
         ).data = empty
@@ -292,13 +298,13 @@ function solarRatio() {
 function solar_slider_change(val) {
     solar_ratio_val = Number(val);
     console.log("solar_ratio_val", solar_ratio_val)
-    if (get_hour_index) clearAndWriteRatios(get_hour_index(), battery_ratio_val, solar_ratio_val)
+    if (get_hour_index) clearAndWriteRatios(get_hour_index())
 }
 
 function battery_slider_change(val) {
     battery_ratio_val = Number(val);
     console.log("battery_ratio_val", battery_ratio_val)
-    if (get_hour_index) clearAndWriteRatios(get_hour_index(), battery_ratio_val, solar_ratio_val)
+    if (get_hour_index) clearAndWriteRatios(get_hour_index())
 }
 
 const solar_slider = document.getElementById("solar_ratio");
