@@ -203,6 +203,8 @@ function actualGraphEntriesAfter(day, hour) {
         ["Aku tühjaks laadimine (kW)", "battery_output"],
     ]
 
+    const actual = daily_data[day].actual
+
     for (const e of entries) {
         powerChart.data.datasets.find(
             d => d.label === e[0]
