@@ -185,10 +185,8 @@ function saveToStorage(day, hour) {
 }
 
 function clearAndWriteRatios(hourIndex, battery, solar) {
-    console.log(hourIndex)
-
     const temps = [
-        ["Aku ratio", battery],
+        ["Aku ratio", -battery],
         ["Solar ratio", solar],
     ]
 
