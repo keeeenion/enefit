@@ -22,7 +22,7 @@ async function start() {
     allPredictions();
     updateTotal();
 
-    // await sleep(5000);
+    await sleep(5000); // grace period
 
     let ticker;
 
