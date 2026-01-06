@@ -11,7 +11,7 @@ function generateDayAnnotations(totalHours) {
         const start = i * 24;
         const end = start + 24;
         const isEven = i % 2 === 0;
-        
+
         annotations[`dayBlock${i}`] = {
             type: 'box',
             xMin: start - 0.5, // Offset by 0.5 to center the boundary between bars
@@ -38,9 +38,9 @@ function generateDayAnnotations(totalHours) {
     return annotations;
 }
 
-const dayAnnotations = generateDayAnnotations(days*24);
+const dayAnnotations = generateDayAnnotations(days * 24);
 
-const labels = Array.from({ length: days*24 }, (_, i) => {
+const labels = Array.from({ length: days * 24 }, (_, i) => {
     // const day = Math.floor(i / 24) + 1;
     const hr = i % 24;
     return `${hr}:00`;
@@ -60,6 +60,9 @@ const powerChart = new Chart(document.getElementById("powerChart"), {
                 borderColor: "rgba(255,153,0,0.7)",
                 backgroundColor: "rgba(255, 255, 255, 0.7)",
                 pointRadius: 0,
+                pointHoverRadius: 0,
+                pointHitRadius: 0,
+                // borderWidth: 2
             },
             {
                 type: "line",
@@ -68,6 +71,9 @@ const powerChart = new Chart(document.getElementById("powerChart"), {
                 borderColor: "rgba(46, 105, 255, 0.7)",
                 backgroundColor: "rgba(255, 255, 255, 0.7)",
                 pointRadius: 0,
+                pointHoverRadius: 0,
+                pointHitRadius: 0,
+                // borderWidth: 2
             },
             {
                 label: "Aku tühjaks laadimine (kW)",

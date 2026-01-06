@@ -278,10 +278,12 @@ const solar_slider = document.getElementById("solar_ratio");
 solar_slider.addEventListener("input", (e) => solar_slider_change(e.target.value))
 
 const battery_slider = document.getElementById("battery_ratio");
-battery_slider.addEventListener("input", (e) => battery_slider_change(e.target.value))
+const normalised = (v) => [-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5][v]
+battery_slider.addEventListener("input", (e) => battery_slider_change(normalised(e.target.value)))
 
 const start_btn = document.getElementById("start");
 start_btn.addEventListener("click", (e) => {
     start();
     start_btn.remove()
+    connectButton.remove()
 })
