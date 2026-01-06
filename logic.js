@@ -73,8 +73,8 @@ async function start() {
 
     tick();
     // ticker = setInterval(tick, 200) // develop only
-    ticker = setInterval(tick, 500) // 5 seconds per hour
-    // muuda mind Raid
+    ticker = setInterval(tick, 500) // 5 seconds per simulated hour (each hour runs this 10 times)
+    // muuda mind Raid (500ms * 10 = 5000ms = 5s)
 }
 
 function gameOver() {
