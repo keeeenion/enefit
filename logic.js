@@ -170,12 +170,15 @@ function hourFinished(day, hour) {
 
     // console.log("grid_usage", grid_usage)
 
+    // müügi_hind = börss
+    // ostu_hind = börss + grid
+
     let final_profit = 0;
-    if (power_balance < 0) { // shortage
-        const buying_cost = powerCost.energy_cost[hour]
+    if (power_balance < 0) { // shortage, buy
+        const buying_cost = powerCost.energy_cost[hour] + powerCost.grid_cost[hour]
         final_profit = buying_cost * grid_usage
     } else if (power_balance > 0) { // selling to grid
-        const selling_cost = powerCost.energy_cost[hour] + powerCost.grid_cost[hour]
+        const selling_cost = powerCost.energy_cost[hour]
         final_profit = selling_cost * grid_usage
     }
 
@@ -304,10 +307,10 @@ function allPredictions() {
 
     priceChart.data.datasets.find(
         d => d.label === "Müügi hind (€)"
-    ).data = with_grid_cost(energy_costs);
+    ).data = energy_costs
     priceChart.data.datasets.find(
         d => d.label === "Ostu hind (€)"
-    ).data = energy_costs;
+    ).data = with_grid_cost(energy_costs);
     priceChart.update();
 }
 
